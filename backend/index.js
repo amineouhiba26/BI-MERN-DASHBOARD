@@ -110,7 +110,63 @@ app.get('/api/charts/user-distribution', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+// 4. Top Movies by Views
+app.get('/api/charts/top-movies', async (req, res) => {
+  try {
+    const query = `
+      SELECT m.title, SUM(f.total_views) as views
+      FROM fact_views f
+      JOIN dim_movie m ON f.movie_id = m.movie_id
+      GROUP BY m.title, m.movie_id
+      ORDER BY views DESC
+      LIMIT 10;
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching top movies:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// 5. User Distribution by Country
+app.get('/api/charts/users-by-country', async (req, res) => {
+  try {
+    const query = `
+      SELECT country, COUNT(user_id) as user_count
+      FROM dim_user
+      GROUP BY country
+      ORDER BY user_count DESC
+      LIMIT 15;
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching users by country:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// 6. Revenue Over Time (calculated from views at $0.05 per view)
+app.get('/api/charts/revenue-timeline', async (req, res) => {
+  try {
+    const query = `
+      SELECT d.date, SUM(f.total_views * 0.05) as total_revenue
+      FROM fact_views f
+      JOIN dim_date d ON f.date_id = d.date_id
+      GROUP BY d.date
+      ORDER BY d.date ASC
+      LIMIT 30;
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching revenue timeline:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+const PORT = process.env.PORT ; 
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
