@@ -21,7 +21,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Test DB Connection
 pool.connect((err, client, release) => {
   if (err) {
     return console.error('Error acquiring client', err.stack);
@@ -52,9 +51,6 @@ app.get('/api/stats', async (req, res) => {
 });
 
 
-// --- Chart Data Endpoints ---
-
-// 1. Views by Genre
 app.get('/api/charts/genre-distribution', async (req, res) => {
   try {
     const query = `
@@ -73,7 +69,6 @@ app.get('/api/charts/genre-distribution', async (req, res) => {
   }
 });
 
-// 2. Views Over Time (Last 30 Days)
 app.get('/api/charts/views-over-time', async (req, res) => {
   try {
     const query = `
@@ -92,10 +87,8 @@ app.get('/api/charts/views-over-time', async (req, res) => {
   }
 });
 
-// 3. User Demographics (Age Group)
 app.get('/api/charts/user-distribution', async (req, res) => {
   try {
-    // Counting users from dim_user directly
     const query = `
       SELECT age_group, COUNT(user_id) as count
       FROM dim_user
@@ -110,7 +103,6 @@ app.get('/api/charts/user-distribution', async (req, res) => {
   }
 });
 
-// 4. Top Movies by Views
 app.get('/api/charts/top-movies', async (req, res) => {
   try {
     const query = `
@@ -129,7 +121,6 @@ app.get('/api/charts/top-movies', async (req, res) => {
   }
 });
 
-// 5. User Distribution by Country
 app.get('/api/charts/users-by-country', async (req, res) => {
   try {
     const query = `
@@ -147,7 +138,6 @@ app.get('/api/charts/users-by-country', async (req, res) => {
   }
 });
 
-// 6. Revenue Over Time (calculated from views at $0.05 per view)
 app.get('/api/charts/revenue-timeline', async (req, res) => {
   try {
     const query = `
